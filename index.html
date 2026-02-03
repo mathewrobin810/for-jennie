@@ -85,7 +85,7 @@ button{
     transition:
         left .45s cubic-bezier(.22,1.5,.36,1),
         top .45s cubic-bezier(.22,1.5,.36,1),
-        transform .18s ease;
+        transform .25s ease;
 }
 
 input{
@@ -125,7 +125,7 @@ input{
      Choose carefully</h2>
 
     <div id="btnBox">
-        <button id="yesBtn">Yes 🐻</button>
+        <button id="yesBtn" disabled>Yes 🐻</button>
         <button id="noBtn">No</button>
     </div>
 
@@ -135,9 +135,10 @@ input{
 
 <script>
 let noCount = 0;
+let noScale = 1;
 let resultLog = [];
 let userAnswer = "";
-
+let yesScale =1;
 /* floating hearts */
 setInterval(()=>{
     let h = document.createElement("div");
@@ -199,10 +200,13 @@ function moveNo(){
     setTimeout(()=>{
         noBtn.style.transform = "scale(0.95)";
     },120);
-
+    noScale -= 0.15;   // how much it shrinks each time
+    if(noScale < 0.35) noScale = 0.35; // minimum size
     setTimeout(()=>{
-        noBtn.style.transform = "scale(1)";
-    },220);
+    noBtn.style.transform = `scale(${noScale})`;
+     yesScale += 0.15;
+    if(yesScale > 2.5) yesScale = 2.5; // limit max size
+    yesBtn.style.transform = `scale(${yesScale})`;
 }
 
 yesBtn.onclick=function(){
@@ -269,6 +273,7 @@ function startConfetti(){
 
 </body>
 </html>
+
 
 
 

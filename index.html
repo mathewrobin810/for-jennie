@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>For Jennie 🌸❤️</title>
+
+<style>
+body{
+    margin:0;
+    height:100vh;
+    font-family: 'Segoe UI', cursive;
+    background: linear-gradient(135deg,#ffd6e7,#ffffff);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    overflow:hidden;
+    font-size: clamp(18px, 6vw, 20px);
+    font-weight: bold;
+    transition: all .4s ease;
+    /* 🌹 Rose text color added (only change) */
+    color:#e75480;
+}
+
+/* floating hearts */
+.heart{
+    position:absolute;
+    color:#ff4d88;
+    animation: float 6s linear infinite;
+    opacity:.5;
+}
+@keyframes float{
+    from{transform:translateY(100vh);opacity:0}
+    to{transform:translateY(-10vh);opacity:.7}
+}
+
+.card{
+    background:white;
+    padding:30px;
+    border-radius:20px;
+    box-shadow:0 10px 30px rgba(0,0,0,.15);
+    width:90%;
+    max-width:380px;
+}
+
+button{
+    padding:12px 25px;
+    border:none;
+    border-radius:30px;
+    font-size:16px;
+    cursor:pointer;
+    margin:8px;
+}
+
+#yesBtn{
+    background:#ff9bb8;
+    color:white;
+    font-size:14px;
+}
+
+#noBtn{
+    background:#ff3b3b;
+    color:white;
+}
+
+input{
+    padding:10px;
+    border-radius:20px;
+    border:1px solid #ccc;
+    width:80%;
+    margin-top:10px;
+}
+
+.hidden{display:none;}
+
+#confetti{
+    position:fixed;
+    top:0;left:0;
+    pointer-events:none;
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="confetti"></canvas>
+
+<div class="card" id="stage1">
+    <h2>Hey Jennie 💕</h2>
+    <p>Tell me first...</p>
+    <h3>Lets test ur observation skill😌-Whats the most beautiful thing in this world?</h3>
+    <input id="answer" placeholder="type here..."/>
+    <br><br>
+    <button onclick="checkAnswer()">Submit</button>
+    <p id="response"></p>
+</div>
+
+<div class="card hidden" id="stage2">
+    <h2>Will you be my Valentine? 💘</h2>
+
+    <div id="btnBox">
+        <button id="yesBtn">Yes 🐻</button>
+        <button id="noBtn">No</button>
+    </div>
+
+    <p id="msg"></p>
+    <p style="margin-top:20px;font-size:12px;color:#888;">With ❤️ Mathew</p>
+</div>
+
+<script>
+let noCount = 0;
+let resultLog = [];
+let userAnswer = "";
+
+/* floating hearts */
+setInterval(()=>{
+    let h = document.createElement("div");
+    h.innerHTML="❤";
+    h.className="heart";
+    h.style.left=Math.random()*100+"vw";
+    h.style.fontSize=(20+Math.random()*20)+"px";
+    document.body.appendChild(h);
+    setTimeout(()=>h.remove(),6000);
+},400);
+
+/* stage 1 */
+function checkAnswer(){
+    let ans = document.getElementById("answer").value.toLowerCase();
+    userAnswer = ans;
+
+    resultLog.push("Answer: " + ans);
+
+    let res = document.getElementById("response");
+
+    if(ans.includes("me") || ans.includes("jennie") || ans.includes("myself")){
+        res.innerText="Correct self aware qween 🙈";
+    } else {
+        res.innerText="Nope.try again-Hint:u r holding ur phone 💕";
+    }
+
+    setTimeout(()=>{
+        document.getElementById("stage1").classList.add("hidden");
+        document.getElementById("stage2").classList.remove("hidden");
+    },4000);
+}
+
+/* buttons */
+let noBtn = document.getElementById("noBtn");
+let yesBtn = document.getElementById("yesBtn");
+let msg = document.getElementById("msg");
+
+noBtn.addEventListener("mouseover",moveNo);
+noBtn.addEventListener("click",moveNo);
+
+function moveNo(){
+    noCount++;
+    resultLog.push("Pressed NO attempt: " + noCount);
+
+    if(noCount==1) msg.innerText="Are u sure?";
+    else if(noCount==2) msg.innerText="Realllyy??";
+    else if(noCount==3) msg.innerText="no no 🤨";
+    else if(noCount>=4){
+        noBtn.style.display="none";
+        msg.innerText="u r stuck with me ha 😏 pls say yessss😭";
+        return;
+    }
+
+    noBtn.style.position="absolute";
+    noBtn.style.left=Math.random()*70+"%";
+    noBtn.style.top=Math.random()*70+"%";
+}
+
+yesBtn.onclick=function(){
+    resultLog.push("Final choice: YES ❤️");
+    msg.innerText="Good choice ,I knew it 😏";
+    startConfetti();
+    saveResult();
+};
+
+/* GOOGLE FORM SAVE */
+function saveResult(){
+
+    const formURL = "https://docs.google.com/forms/u/0/d/e/1FAIpQLScDSu5SOw8JiNls0eKXgRRrkG_wcvNJXLMqHSj_dA0dm_cF4w/formResponse";
+
+    const data = new FormData();
+
+    const fullLog =
+        "Answer: " + userAnswer +
+        "\nNo attempts: " + noCount +
+        "\n\nLog:\n" + resultLog.join("\n");
+
+    data.append("entry.0", fullLog);
+    data.append("entry.2", "YES");
+
+    fetch(formURL, {
+        method: "POST",
+        mode: "no-cors",
+        body: data
+    });
+
+    console.log("Saved to Google Form ❤️");
+}
+
+/* confetti */
+function startConfetti(){
+    const canvas=document.getElementById("confetti");
+    const ctx=canvas.getContext("2d");
+    canvas.width=window.innerWidth;
+    canvas.height=window.innerHeight;
+
+    let pieces=[];
+    for(let i=0;i<150;i++){
+        pieces.push({
+            x:Math.random()*canvas.width,
+            y:Math.random()*canvas.height,
+            dy:2+Math.random()*3,
+            size:5+Math.random()*5
+        });
+    }
+
+    function draw(){
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        pieces.forEach(p=>{
+            ctx.fillRect(p.x,p.y,p.size,p.size);
+            p.y+=p.dy;
+            if(p.y>canvas.height)p.y=0;
+        });
+        requestAnimationFrame(draw);
+    }
+    draw();
+}
+</script>
+
+</body>
+</html>

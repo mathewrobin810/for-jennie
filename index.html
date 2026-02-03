@@ -19,23 +19,6 @@ body{
     font-size: clamp(18px, 6vw, 20px);
     font-weight: bold;
     transition: all .4s ease;
-    /* pop animation */
-.pop{
-    animation: pop 0.5s ease forwards;
-}
-
-@keyframes pop{
-    0%{transform:scale(0.6);opacity:0;}
-    60%{transform:scale(1.2);}
-    100%{transform:scale(1);opacity:1;}
-}
-
-/* cute glow */
-.glow{
-    text-shadow: 0 0 8px #ff9bb8,
-                 0 0 16px #ff9bb8,
-                 0 0 24px #ff9bb8;
-}
     /* 🌹 Rose text color added (only change) */
     color:#e75480;
 }
@@ -74,12 +57,16 @@ button{
     background:#ff9bb8;
     color:white;
     font-size:14px;
+     yesScale += 0.15;
+    if(yesScale > 2.5) yesScale = 2.5; // limit max size
+    yesBtn.style.transform = `scale(${yesScale})`;
 }
 
 #noBtn{
     background:#ff3b3b;
     color:white;
-     position:relative;
+    
+    position:relative;
 
     /* smoother glide */
     transition:
@@ -113,7 +100,7 @@ input{
 <div class="card" id="stage1">
     <h2>Hey Jennie 💕</h2>
     <p>Tell me first...</p>
-    <h3>Lets test ur observation skill😌-Whats the most beautiful thing in this world?😉</h3>
+    <h3>Lets test ur observation skill😌-Whats the most beautiful thing in this world?</h3>
     <input id="answer" placeholder="type here..."/>
     <br><br>
     <button onclick="checkAnswer()">Submit</button>
@@ -121,8 +108,7 @@ input{
 </div>
 
 <div class="card hidden" id="stage2">
-    <h2>Will you be my Valentine? 💘 
-     Choose carefully</h2>
+    <h2>Will you be my Valentine? 💘</h2>
 
     <div id="btnBox">
         <button id="yesBtn">Yes 🐻</button>
@@ -130,7 +116,7 @@ input{
     </div>
 
     <p id="msg"></p>
-    <p style="margin-top:20px;font-size:13px;color:#888;">With ❤️ Mathew</p>
+    <p style="margin-top:20px;font-size:12px;color:#888;">With ❤️ Mathew</p>
 </div>
 
 <script>
@@ -160,9 +146,9 @@ function checkAnswer(){
     let res = document.getElementById("response");
 
     if(ans.includes("me") || ans.includes("jennie") || ans.includes("myself")){
-        res.innerText="yess Jennie! self-aware qween 🙈";
+        res.innerText="Correct! self-aware qween 🙈";
     } else {
-        res.innerText="Nope. Hint: u r holding ur phone 💕";
+        res.innerText="Nope..Hint: u r holding ur phone 💕";
     }
 
     setTimeout(()=>{
@@ -188,31 +174,33 @@ function moveNo(){
     else if(noCount==3) msg.innerText="no no 🤨";
     else if(noCount>=4){
         noBtn.style.display="none";
-        msg.innerText="kinda stuck with me ha 😏 pls say yessss😭";
+        msg.innerText="oky oky u clearly want YES 😌💕";
         return;
     }
-
+    // smoother random movement
     noBtn.style.position="absolute";
     noBtn.style.left=Math.random()*75+"%";
     noBtn.style.top=Math.random()*75+"%";
-     // bounce pop animation
+   
+    // tiny bounce effect
     noBtn.style.transform = "scale(1.25)";
     setTimeout(()=>{
         noBtn.style.transform = "scale(0.95)";
     },120);
     noScale -= 0.15;   // how much it shrinks each time
-    if(noScale < 0.35) noScale = 0.35; // minimum size
-    setTimeout(()=>{
-    noBtn.style.transform = `scale(${noScale})`;
-     yesScale += 0.15;
+    if(noScale < 0.25) noScale = 0.25; // minimum size
+     /* 🔺 YES grows */
+    yesScale += 0.15;
     if(yesScale > 2.5) yesScale = 2.5; // limit max size
     yesBtn.style.transform = `scale(${yesScale})`;
+    setTimeout(()=>{
+    noBtn.style.transform = `scale(${noScale})`;
+    },220);
 }
 
 yesBtn.onclick=function(){
     resultLog.push("Final choice: YES ❤️");
-    msg.innerText="Good choice ,I knew it 😏. Made this just for you… I kinda adore your silly side";
-    msg.classList.add("pop","glow");
+    msg.innerText="Good choice ,I knew it 😏. Made this just for you… I kinda adore your silly side ";
     startConfetti();
     saveResult();
 };
@@ -273,10 +261,3 @@ function startConfetti(){
 
 </body>
 </html>
-
-
-
-
-
-
-

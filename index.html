@@ -79,6 +79,13 @@ button{
 #noBtn{
     background:#ff3b3b;
     color:white;
+     position:relative;
+
+    /* smoother glide */
+    transition:
+        left .45s cubic-bezier(.22,1.5,.36,1),
+        top .45s cubic-bezier(.22,1.5,.36,1),
+        transform .18s ease;
 }
 
 input{
@@ -184,8 +191,17 @@ function moveNo(){
     }
 
     noBtn.style.position="absolute";
-    noBtn.style.left=Math.random()*70+"%";
-    noBtn.style.top=Math.random()*70+"%";
+    noBtn.style.left=Math.random()*75+"%";
+    noBtn.style.top=Math.random()*75+"%";
+     // bounce pop animation
+    noBtn.style.transform = "scale(1.25)";
+    setTimeout(()=>{
+        noBtn.style.transform = "scale(0.95)";
+    },120);
+
+    setTimeout(()=>{
+        noBtn.style.transform = "scale(1)";
+    },220);
 }
 
 yesBtn.onclick=function(){
@@ -252,5 +268,6 @@ function startConfetti(){
 
 </body>
 </html>
+
 
 

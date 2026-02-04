@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>For Jennie 🌸❤️</title>
+<title>For Cheri 🌸</title>
 
 <style>
 body{
     margin:0;
     height:100vh;
     font-family: 'Segoe UI', cursive;
-    background: linear-gradient(135deg,#ffd6e7,#ffffff);
+    background: linear-gradient(135deg,#d9c6ff,#5c3b88);
     display:flex;
     justify-content:center;
     align-items:center;
@@ -19,7 +19,6 @@ body{
     font-size: clamp(18px, 6vw, 20px);
     font-weight: bold;
     transition: all .4s ease;
-    /* 🌹 Rose text color added (only change) */
     color:#e75480;
 }
 
@@ -36,10 +35,19 @@ body{
 }
 
 .card{
-    background:white;
+    background: rgba(255,255,255,0.65); /* translucent */
+    backdrop-filter: blur(12px);        /* glass blur */
+    -webkit-backdrop-filter: blur(12px);
+    
     padding:30px;
-    border-radius:20px;
-    box-shadow:0 10px 30px rgba(0,0,0,.15);
+    border-radius:22px;
+
+    border: 1px solid rgba(255,255,255,0.4); /* soft edge */
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,.12),
+        inset 0 0 10px rgba(255,255,255,.3); /* subtle shine */
+
     width:90%;
     max-width:380px;
 }
@@ -53,22 +61,24 @@ button{
     margin:8px;
 }
 
+/* YES button */
 #yesBtn{
     background:#ff9bb8;
     color:white;
     font-size:14px;
-     yesScale += 0.15;
-    if(yesScale > 2.5) yesScale = 2.5; // limit max size
-    yesBtn.style.transform = `scale(${yesScale})`;
+    transition: transform .35s cubic-bezier(.22,1.5,.36,1);
 }
 
+#yesBtn:disabled{
+    cursor:not-allowed;
+    transform: scale(.9);
+}
+
+/* NO button */
 #noBtn{
     background:#ff3b3b;
     color:white;
-    
     position:relative;
-
-    /* smoother glide */
     transition:
         left .45s cubic-bezier(.22,1.5,.36,1),
         top .45s cubic-bezier(.22,1.5,.36,1),
@@ -90,6 +100,24 @@ input{
     top:0;left:0;
     pointer-events:none;
 }
+/* ✨ glow animation for final message */
+.glowMsg{
+    animation: glowPulse 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes glowPulse{
+    from{
+        text-shadow: 0 0 5px #ff9bb8;
+        transform: scale(1);
+    }
+    to{
+        text-shadow:
+            0 0 10px #ff9bb8,
+            0 0 20px #ff4d88,
+            0 0 35px #ff4d88;
+        transform: scale(1.05);
+     }
+}
 </style>
 </head>
 
@@ -97,7 +125,28 @@ input{
 
 <canvas id="confetti"></canvas>
 
-<div class="card" id="stage1">
+<!-- ================= QUIZ 1 ================= -->
+<div class="card" id="stage0a">
+    <h2>🍒Mini quiz first 😌</h2>
+    <h3>Who fell asleep first while we chat? 😴</h3>
+    <input id="q1" placeholder="type here..."/>
+    <br><br>
+    <button onclick="checkQ1()">Submit</button>
+    <p id="r1"></p>
+</div>
+
+<!-- ================= QUIZ 2 ================= -->
+<div class="card hidden" id="stage0b">
+    <h2>Next one 😏</h2>
+    <h3>Who is introvert publicly but naughty with me? 🙈</h3>
+    <input id="q2" placeholder="type here..."/>
+    <br><br>
+    <button onclick="checkQ2()">Submit</button>
+    <p id="r2"></p>
+</div>
+
+<!-- ================= ORIGINAL QUESTION ================= -->
+<div class="card hidden" id="stage1">
     <h2>Hey Jennie 💕</h2>
     <p>Tell me first...</p>
     <h3>Lets test ur observation skill😌-Whats the most beautiful thing in this world?😉</h3>
@@ -107,58 +156,116 @@ input{
     <p id="response"></p>
 </div>
 
+<!-- ================= VALENTINE ================= -->
 <div class="card hidden" id="stage2">
-    <h2>Will you be my Valentine? 💘,Choose carefully 😠
-    anyways u r trapd😁</h2>
-
+    <h2>Will you be my Valentine? 💘,Choose carefully 😠</h2>
     <div id="btnBox">
-        <button id="yesBtn">Yes 🐻</button>
+        <button id="yesBtn" disabled>Yes 🐻</button>
         <button id="noBtn">No</button>
     </div>
-
     <p id="msg"></p>
     <p style="margin-top:20px;font-size:12px;color:#888;">With ❤️ Mathew</p>
 </div>
 
 <script>
+
 let noCount = 0;
 let noScale = 1;
+let yesScale = 1;
 let resultLog = [];
 let userAnswer = "";
-let yesScale =1;
-/* floating hearts */
-setInterval(()=>{
-    let h = document.createElement("div");
-    h.innerHTML="❤";
-    h.className="heart";
-    h.style.left=Math.random()*100+"vw";
-    h.style.fontSize=(20+Math.random()*20)+"px";
-    document.body.appendChild(h);
-    setTimeout(()=>h.remove(),6000);
-},400);
 
-/* stage 1 */
+
+/* =========================
+   ✏️ EDIT YOUR MESSAGES HERE
+   ========================= */
+const q1RightMsg = "hehe sleepy princess detected 😴💕";
+const q1WrongMsg = "mmmh! it's you silly 😌";
+
+const q2RightMsg = "publicly shy… privately... 😏❤️";
+const q2WrongMsg = "???? it's definitely you naughty girl 🙈";
+
+
+
+/* helper */
+function isHerAnswer(text){
+    return text.includes("me") ||
+           text.includes("myself") ||
+           text.includes("its me") ||
+           text.includes("jennie") ||
+           text.includes("jen"); 
+}
+
+
+
+/* ================= QUIZ 1 ================= */
+function checkQ1(){
+    let ans = document.getElementById("q1").value.trim().toLowerCase();
+
+    if(ans === ""){
+        document.getElementById("r1").innerText = "hey hey 😤 answer first!";
+        return;
+    }
+
+    resultLog.push("Q1: " + ans);
+
+    document.getElementById("r1").innerText =
+        isHerAnswer(ans) ? q1RightMsg : q1WrongMsg;
+
+    setTimeout(()=>{
+        stage0a.classList.add("hidden");
+        stage0b.classList.remove("hidden");
+    },3000);
+}
+/* ================= QUIZ 2 ================= */
+function checkQ2(){
+    let ans = document.getElementById("q2").value.trim().toLowerCase();
+
+    if(ans === ""){
+        document.getElementById("r2").innerText = "no skipping 🌸 😏 type something";
+        return;
+    }
+
+    resultLog.push("Q2: " + ans);
+
+    document.getElementById("r2").innerText =
+        isHerAnswer(ans) ? q2RightMsg : q2WrongMsg;
+
+    setTimeout(()=>{
+        stage0b.classList.add("hidden");
+        stage1.classList.remove("hidden");
+    },3000);
+}
+
+
+
+/* ================= ORIGINAL ================= */
 function checkAnswer(){
-    let ans = document.getElementById("answer").value.toLowerCase();
-    userAnswer = ans;
+    let ans = answer.value.trim().toLowerCase();
 
+    if(ans === ""){
+        response.innerText = "come onnnn 😆 say something first";
+        return;
+    }
+
+    userAnswer = ans;
     resultLog.push("Answer: " + ans);
 
-    let res = document.getElementById("response");
-
-    if(ans.includes("me") || ans.includes("jennie") || ans.includes("myself")){
-        res.innerText="yehh u Jennie! self-aware qween 🙈";
+    if(isHerAnswer(ans)){
+        response.innerText="yehh u Cheri🌸! self-aware qween 🙈";
     } else {
-        res.innerText="Nope..Hint: shs mine";
+        response.innerText="Hint: a Girl and shes mine😌";
     }
 
     setTimeout(()=>{
-        document.getElementById("stage1").classList.add("hidden");
-        document.getElementById("stage2").classList.remove("hidden");
-    },4000);
+        stage1.classList.add("hidden");
+        stage2.classList.remove("hidden");
+    },3000);
 }
 
-/* buttons */
+
+
+/* ================= NO BUTTON ================= */
 let noBtn = document.getElementById("noBtn");
 let yesBtn = document.getElementById("yesBtn");
 let msg = document.getElementById("msg");
@@ -169,46 +276,52 @@ noBtn.addEventListener("click",moveNo);
 function moveNo(){
     noCount++;
     resultLog.push("Pressed NO attempt: " + noCount);
-
-    if(noCount==1) msg.innerText="Are u sure?";
-    else if(noCount==2) msg.innerText="Realllyy??";
-    else if(noCount==3) msg.innerText="no no 🤨";
-    else if(noCount>=4){
+    
+    if(noCount==1){
+        msg.innerText="Are u sure? 🥺";
+    }
+    else if(noCount==2){
+        msg.innerText="Realllyy?? 😠";
+    }
+    else if(noCount==3){
+        msg.innerText="no no 🤨";
+    }
+    
+    if(noCount>=4){
         noBtn.style.display="none";
+        yesBtn.disabled = false;   // ✅ unlock YES
         msg.innerText="oky oky u clearly want YES 😌💕";
         return;
     }
-    // smoother random movement
+
     noBtn.style.position="absolute";
     noBtn.style.left=Math.random()*75+"%";
     noBtn.style.top=Math.random()*75+"%";
-   
-    // tiny bounce effect
-    noBtn.style.transform = "scale(1.25)";
-    setTimeout(()=>{
-        noBtn.style.transform = "scale(0.95)";
-    },120);
-    noScale -= 0.15;   // how much it shrinks each time
-    if(noScale < 0.25) noScale = 0.25; // minimum size
-     /* 🔺 YES grows */
-    yesScale += 0.15;
-    if(yesScale > 2.5) yesScale = 2.5; // limit max size
-    yesBtn.style.transform = `scale(${yesScale})`;
-    setTimeout(()=>{
+
+    noScale -= 0.15;
+    if(noScale < 0.25) noScale = 0.25;
     noBtn.style.transform = `scale(${noScale})`;
-    },220);
+
+    yesScale += 0.15;
+    if(yesScale > 2.5) yesScale = 2.5;
+    yesBtn.style.transform = `scale(${yesScale})`;
 }
 
+
+
+/* ================= YES ================= */
 yesBtn.onclick=function(){
     resultLog.push("Final choice: YES ❤️");
-    msg.innerText="yess..No rush… just us, slowly ❤️. Made this just for you… I kinda adore your silly side ";
+    msg.innerText="yess..I knew it 😏❤️";
+    msg.classList.add("glowMsg");   // ✨ glow starts
     startConfetti();
     saveResult();
 };
 
-/* GOOGLE FORM SAVE */
-function saveResult(){
 
+
+/* ================= GOOGLE FORM (UNCHANGED) ================= */
+function saveResult(){
     const formURL = "https://docs.google.com/forms/u/0/d/e/1FAIpQLScDSu5SOw8JiNls0eKXgRRrkG_wcvNJXLMqHSj_dA0dm_cF4w/formResponse";
 
     const data = new FormData();
@@ -221,21 +334,21 @@ function saveResult(){
     data.append("entry.0", fullLog);
     data.append("entry.2", "YES");
 
-    fetch(formURL, {
-        method: "POST",
-        mode: "no-cors",
-        body: data
+    fetch(formURL,{
+        method:"POST",
+        mode:"no-cors",
+        body:data
     });
-
-    console.log("Saved to Google Form ❤️");
 }
 
-/* confetti */
+
+
+/* ================= CONFETTI ================= */
 function startConfetti(){
-    const canvas=document.getElementById("confetti");
+    const canvas=confetti;
     const ctx=canvas.getContext("2d");
-    canvas.width=window.innerWidth;
-    canvas.height=window.innerHeight;
+    canvas.width=innerWidth;
+    canvas.height=innerHeight;
 
     let pieces=[];
     for(let i=0;i<150;i++){
@@ -258,9 +371,20 @@ function startConfetti(){
     }
     draw();
 }
-</script>
 
+
+
+/* floating hearts */
+setInterval(()=>{
+    let h=document.createElement("div");
+    h.innerHTML="❤";
+    h.className="heart";
+    h.style.left=Math.random()*100+"vw";
+    h.style.fontSize=(20+Math.random()*20)+"px";
+    document.body.appendChild(h);
+    setTimeout(()=>h.remove(),6000);
+},400);
+
+</script>
 </body>
 </html>
-
-

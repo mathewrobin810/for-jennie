@@ -70,7 +70,6 @@ button{
 }
 
 #yesBtn:disabled{
-    cursor:not-allowed;
     transform: scale(.9);
 }
 
@@ -127,7 +126,7 @@ input{
 
 <!-- ================= QUIZ 1 ================= -->
 <div class="card" id="stage0a">
-    <h2>Cheri Mini quiz first 😌</h2>
+    <h2>Cheri, a Mini quiz first 😌</h2>
     <h3>Who fell asleep first while we chat? 😴</h3>
     <input id="q1" placeholder="type here..."/>
     <br><br>
@@ -183,7 +182,7 @@ const q1RightMsg = "hehe sleepy princess detected 😴💕";
 const q1WrongMsg = "mmmh! it's you silly 😌";
 
 const q2RightMsg = "publicly shy… privately... 😏❤️";
-const q2WrongMsg = "???? it's definitely you naughty girl 🙈";
+const q2WrongMsg = "???? it's definitely you girl 🙈";
 
 
 
@@ -193,6 +192,7 @@ function isHerAnswer(text){
            text.includes("myself") ||
            text.includes("its me") ||
            text.includes("jennie") ||
+           text.includes("cheri") ||
            text.includes("jen"); 
 }
 
@@ -254,7 +254,7 @@ function checkAnswer(){
     if(isHerAnswer(ans)){
         response.innerText="yehh u Cheri🌸! self-aware qween 🙈";
     } else {
-        response.innerText="Hint: a Girl and shes mine😌";
+        response.innerText="Hint: a Girl and she's mine😌";
     }
 
     setTimeout(()=>{
@@ -388,3 +388,4 @@ setInterval(()=>{
 </script>
 </body>
 </html>
+
